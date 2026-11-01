@@ -1,0 +1,8 @@
+[build]
+  command = "npm run build"
+
+[build.environment]
+  NODE_VERSION = "22"
+  # These two are public by design (they ship to the browser); stop Netlify's
+  # secret scanner from failing the build because it finds them in the output.
+  SECRETS_SCAN_OMIT_KEYS = "NEXT_PUBLIC_SUPABASE_URL,NEXT_PUBLIC_SUPABASE_ANON_KEY,NEXT_PUBLIC_SITE_URL,NEXT_PUBLIC_CONTACT_EMAIL,NEXT_PUBLIC_GOATCOUNTER"
