@@ -76,7 +76,7 @@ export async function POST(request: Request) {
 
   const { error } = await db
     .from("plays")
-    .upsert(rows, { onConflict: "client_id,publish_date,position" });
+    .upsert(rows, { onConflict: "user_id,publish_date,position" });
   if (error) return Response.json({ error: error.message }, { status: 500 });
   return Response.json({ ok: true, saved: rows.length });
 }

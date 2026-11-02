@@ -120,6 +120,37 @@ export function saveEntry(entry: GameEntry): GameHistory {
   persist(history);
   return history;
 }
+export async function saveEntryCloudAware(entry: GameEntry, userId?: string) {
+  // 1. Salvăm local ca și până acum (pentru viteză și offline / guest)
+  const history = saveEntry(entry);
+
+  // 2. Dacă utilizatorul este logat, trimitem imediat în Supabase / API
+  if (userId) {
+    try {
+      await fetch("/api/plays", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          rows: [
+            {
+              user_id: userId,
+              date: entry.date,
+              position: entry.position,
+              guess: entry.guess,
+              score: entry.score,
+              status: entry.status,
+              played_on: entry.playedOn,
+            },
+          ],
+        }),
+      });
+    } catch (err) {
+      console.error("Eroare la sincronizarea în cloud:", err);
+    }
+  }
+
+  return history;
+}
 
 /**
  * Streaks derived from history. A day counts when at least one of its
