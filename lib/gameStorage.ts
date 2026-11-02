@@ -123,39 +123,38 @@ export function saveEntry(entry: GameEntry): GameHistory {
   return history;
 }
 export async function saveEntryCloudAware(entry: GameEntry, userId?: string) {
-  // 1. Salvăm local ca și până acum (pentru viteză și offline / guest)
+  // 1. Salvăm local (pentru viteză și suport offline/guest)
   const history = saveEntry(entry);
-  if (!supabase) return;
+  if (!supabase) return history;
+
   const { data: { session } } = await supabase.auth.getSession();
   const token = session?.access_token;
-  // 2. Dacă utilizatorul este logat, trimitem imediat în Supabase / API
+
+  // 2. Dacă utilizatorul este logat, trimitem la API cu structura corectă (clientId + entries)
   if (userId) {
-  try {
-    await fetch("/api/plays", {
-      method: "POST",
-      headers: { 
-        "Content-Type": "application/json",
-        // AICI ESTE HEADERUL NOU:
-        ...(token ? { "Authorization": `Bearer ${token}` } : {}) 
-      },
-      body: JSON.stringify({
-        rows: [
-          {
-            user_id: userId,
-            publish_date: entry.date,
-            position: entry.position,
-            guess: entry.guess,
-            score: entry.score,
-            status: entry.status,
-            played_on: entry.playedOn,
-          },
-        ],
-      }),
-    });
-  } catch (error) {
-    console.error("Eroare la trimiterea datelor:", error);
+    try {
+      await fetch("/api/plays", {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({
+          clientId: getClientId(), // ID-ul unic din localStorage/browser
+          entries: [
+            {
+              date: entry.date,
+              position: entry.position,
+              guess: entry.guess,
+              playedOn: entry.playedOn,
+            },
+          ],
+        }),
+      });
+    } catch (error) {
+      console.error("Eroare la trimiterea datelor:", error);
+    }
   }
-}
 
   return history;
 }
