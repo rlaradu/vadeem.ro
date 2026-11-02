@@ -111,4 +111,4 @@ export function useGameState(viewDate?: string) {
   );
 
   return { history, dayEntries, streak, maxStreak, ready, today, recordPlay };
-}
+} 
