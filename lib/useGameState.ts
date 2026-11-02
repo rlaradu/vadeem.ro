@@ -32,6 +32,46 @@ export function useGameState(viewDate?: string) {
     /* eslint-enable react-hooks/set-state-in-effect */
   }, []);
 
+  // 1. DESCARCĂ JOCURILE DIN CLOUD (Sincronizare la intrarea pe site / login)
+  useEffect(() => {
+    if (!ready || !supabase) return;
+
+    async function pullCloudPlays() {
+      const { data: { session } } = await supabase!.auth.getSession();
+      if (!session?.user) return;
+
+      // Citim jocurile existente pe cont din baza de date
+      const { data: cloudPlays, error } = await supabase!
+        .from("plays")
+        .select("publish_date, position, guess, played_on")
+        .eq("user_id", session.user.id);
+
+      if (error || !cloudPlays || cloudPlays.length === 0) return;
+
+      let currentHistory = getHistory();
+      let hasNewData = false;
+
+      cloudPlays.forEach((play) => {
+        // Dacă o rundă din cloud nu există încă în browserul local, o salvăm
+        currentHistory = saveEntry({
+          date: play.publish_date,
+          position: play.position,
+          guess: play.guess,
+          score: 0 as unknown as Score, // <-- Am adăugat "as unknown as Score"
+          status: "completed",
+          playedOn: play.played_on,
+        });
+        hasNewData = true;
+      });
+
+      if (hasNewData) {
+        setHistory(currentHistory);
+      }
+    }
+
+    void pullCloudPlays();
+  }, [ready]);
+
   // Upload new plays whenever history changes (no-op when everything is synced).
   useEffect(() => {
     historyRef.current = history;
