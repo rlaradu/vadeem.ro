@@ -19,8 +19,6 @@ import { supabase } from "./supabaseClient";
  */
 export function useGameState(viewDate?: string) {
   const [history, setHistory] = useState<GameHistory>({});
-  // Empty until mounted: the date and localStorage only exist in the browser,
-  // and reading them during render would break prerendering.
   const [today, setToday] = useState("");
   const ready = today !== "";
   const historyRef = useRef(history);
@@ -32,7 +30,7 @@ export function useGameState(viewDate?: string) {
     /* eslint-enable react-hooks/set-state-in-effect */
   }, []);
 
-  // 1. DESCARCĂ JOCURILE DIN CLOUD (Sincronizare la intrarea pe site / login)
+  // Descărcare automată din Supabase la încărcare ȘI la fiecare Autentificare (Login)
   useEffect(() => {
     if (!ready || !supabase) return;
 
@@ -40,7 +38,6 @@ export function useGameState(viewDate?: string) {
       const { data: { session } } = await supabase!.auth.getSession();
       if (!session?.user) return;
 
-      // Citim jocurile existente pe cont din baza de date
       const { data: cloudPlays, error } = await supabase!
         .from("plays")
         .select("publish_date, position, guess, played_on")
@@ -52,12 +49,11 @@ export function useGameState(viewDate?: string) {
       let hasNewData = false;
 
       cloudPlays.forEach((play) => {
-        // Dacă o rundă din cloud nu există încă în browserul local, o salvăm
         currentHistory = saveEntry({
           date: play.publish_date,
           position: play.position,
           guess: play.guess,
-          score: 0 as unknown as Score, // <-- Am adăugat "as unknown as Score"
+          score: 0 as unknown as Score,
           status: "completed",
           playedOn: play.played_on,
         });
@@ -69,23 +65,26 @@ export function useGameState(viewDate?: string) {
       }
     }
 
+    // 1. Încercăm descărcarea la inițializarea componentei
     void pullCloudPlays();
+
+    // 2. Ascultăm starea de auth: când te loghezi, tragem Imediat datele din cloud
+    const { data: authListener } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "SIGNED_IN" || event === "INITIAL_SESSION") {
+        void pullCloudPlays();
+      }
+    });
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
   }, [ready]);
 
-  // Upload new plays whenever history changes (no-op when everything is synced).
+  // Sincronizează modificările locale către cloud
   useEffect(() => {
     historyRef.current = history;
     if (ready) void syncHistory(history);
   }, [history, ready]);
-
-  // When the user signs in, re-send everything so it's linked to the account.
-  useEffect(() => {
-    if (!supabase) return;
-    const { data } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "SIGNED_IN") void syncHistory(historyRef.current);
-    });
-    return () => data.subscription.unsubscribe();
-  }, []);
 
   const date = viewDate ?? today;
   const dayEntries = entriesForDate(history, date);
