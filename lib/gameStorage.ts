@@ -134,7 +134,7 @@ export async function saveEntryCloudAware(entry: GameEntry, userId?: string) {
           rows: [
             {
               user_id: userId,
-              date: entry.date,
+              publish_date: entry.date,
               position: entry.position,
               guess: entry.guess,
               score: entry.score,
