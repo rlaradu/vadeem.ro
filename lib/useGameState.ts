@@ -20,57 +20,74 @@ import { supabase } from "./supabaseClient";
 export function useGameState(viewDate?: string) {
   const [history, setHistory] = useState<GameHistory>({});
   const [today, setToday] = useState("");
-  const ready = today !== "";
+  const [isMounted, setIsMounted] = useState(false);
+  const ready = isMounted && today !== "";
   const historyRef = useRef(history);
 
+  // 1. Asigurăm hidratarea curată pe client
   useEffect(() => {
-  if (!ready || !supabase) return;
+    setHistory(getHistory());
+    setToday(localDateString());
+    setIsMounted(true);
+  }, []);
 
-  async function pullCloudPlays() {
-    const { data: { session } } = await supabase!.auth.getSession();
-    if (!session?.user) return;
+  // 2. Descărcare din cloud doar DUPĂ ce componenta s-a montat pe client
+  useEffect(() => {
+    if (!isMounted || !supabase) return;
 
-    const { data: cloudPlays, error } = await supabase!
-      .from("plays")
-      .select("publish_date, position, guess, played_on")
-      .eq("user_id", session.user.id);
+    async function pullCloudPlays() {
+      try {
+        const { data: { session } } = await supabase!.auth.getSession();
+        if (!session?.user) return;
 
-    if (error || !cloudPlays || cloudPlays.length === 0) return;
+        const { data: cloudPlays, error } = await supabase!
+          .from("plays")
+          .select("publish_date, position, guess, played_on")
+          .eq("user_id", session.user.id);
 
-    let currentHistory = getHistory();
-    let hasNewData = false;
+        if (error || !cloudPlays || cloudPlays.length === 0) return;
 
-    cloudPlays.forEach((play) => {
-      currentHistory = saveEntry({
-        date: play.publish_date,
-        position: play.position,
-        guess: play.guess,
-        score: 0 as unknown as Score,
-        status: "completed",
-        playedOn: play.played_on,
-      });
-      hasNewData = true;
+        let currentHistory = getHistory();
+        let hasNewData = false;
+
+        cloudPlays.forEach((play) => {
+          currentHistory = saveEntry({
+            date: play.publish_date,
+            position: play.position,
+            guess: play.guess,
+            score: 0 as unknown as Score,
+            status: "completed",
+            playedOn: play.played_on,
+          });
+          hasNewData = true;
+        });
+
+        if (hasNewData) {
+          setHistory(currentHistory);
+        }
+      } catch (err) {
+        console.error("Eroare la sinco-cloud:", err);
+      }
+    }
+
+    void pullCloudPlays();
+
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        void pullCloudPlays();
+      }
     });
 
-    if (hasNewData) {
-      setHistory(currentHistory);
-    }
-  }
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, [isMounted]);
 
-  // 1. Încercăm descărcarea imediată
-  void pullCloudPlays();
-
-  // 2. Ascultăm orice schimbare de sesiune (când se încarcă token-ul pe mobil)
-  const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
-    if (session?.user) {
-      void pullCloudPlays();
-    }
-  });
-
-  return () => {
-    authListener.subscription.unsubscribe();
-  };
-}, [ready]);
+  // 3. Trimite modificările locale spre cloud
+  useEffect(() => {
+    historyRef.current = history;
+    if (ready) void syncHistory(history);
+  }, [history, ready]);
 
   const date = viewDate ?? today;
   const dayEntries = entriesForDate(history, date);
