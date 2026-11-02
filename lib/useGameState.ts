@@ -42,7 +42,7 @@ export function useGameState(viewDate?: string) {
         .from("plays")
         .select("publish_date, position, guess, played_on")
         .eq("user_id", session.user.id);
-
+        console.log("Jocuri preluate din Supabase:", cloudPlays, "Eroare:", error);
       if (error || !cloudPlays || cloudPlays.length === 0) return;
 
       let currentHistory = getHistory();
@@ -63,6 +63,7 @@ export function useGameState(viewDate?: string) {
       if (hasNewData) {
         setHistory(currentHistory);
       }
+      
     }
 
     // 1. Încercăm descărcarea la inițializarea componentei
