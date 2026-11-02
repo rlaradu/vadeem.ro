@@ -1,4 +1,6 @@
+
 import type { Score } from "./scoring";
+import { supabase } from "./supabaseClient";
 
 /**
  * localStorage persistence for played games (guests). All functions are safe to
@@ -123,31 +125,37 @@ export function saveEntry(entry: GameEntry): GameHistory {
 export async function saveEntryCloudAware(entry: GameEntry, userId?: string) {
   // 1. Salvăm local ca și până acum (pentru viteză și offline / guest)
   const history = saveEntry(entry);
-
+  if (!supabase) return;
+  const { data: { session } } = await supabase.auth.getSession();
+  const token = session?.access_token;
   // 2. Dacă utilizatorul este logat, trimitem imediat în Supabase / API
   if (userId) {
-    try {
-      await fetch("/api/plays", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          rows: [
-            {
-              user_id: userId,
-              publish_date: entry.date,
-              position: entry.position,
-              guess: entry.guess,
-              score: entry.score,
-              status: entry.status,
-              played_on: entry.playedOn,
-            },
-          ],
-        }),
-      });
-    } catch (err) {
-      console.error("Eroare la sincronizarea în cloud:", err);
-    }
+  try {
+    await fetch("/api/plays", {
+      method: "POST",
+      headers: { 
+        "Content-Type": "application/json",
+        // AICI ESTE HEADERUL NOU:
+        ...(token ? { "Authorization": `Bearer ${token}` } : {}) 
+      },
+      body: JSON.stringify({
+        rows: [
+          {
+            user_id: userId,
+            publish_date: entry.date,
+            position: entry.position,
+            guess: entry.guess,
+            score: entry.score,
+            status: entry.status,
+            played_on: entry.playedOn,
+          },
+        ],
+      }),
+    });
+  } catch (error) {
+    console.error("Eroare la trimiterea datelor:", error);
   }
+}
 
   return history;
 }
