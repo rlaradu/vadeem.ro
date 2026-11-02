@@ -84,8 +84,11 @@ export async function POST(request: Request) {
   const conflictTarget = userId ? "user_id,publish_date,position" : "client_id,publish_date,position";
 
   const { error } = await db
-    .from("plays")
-    .upsert(rows, { onConflict: conflictTarget });
+  .from("plays")
+  .upsert(rows, { 
+    onConflict: conflictTarget,
+    ignoreDuplicates: true // <-- AICI: Baza de date păstrează doar PRIMUL joc și le ignoră pe următoarele!
+  });
     
   if (error) return Response.json({ error: error.message }, { status: 500 });
   
