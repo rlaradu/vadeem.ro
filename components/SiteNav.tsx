@@ -9,7 +9,7 @@ export const NAV_LINKS = [
   { href: "/ideas", label: "Idei" },
   { href: "/about", label: "Despre" },
   { href: "/privacy", label: "Confidențialitate" },
-  { href: "/account", label: "Cont" },
+  //{ href: "/account", label: "Cont" },
 ];
 
 const TOP_LINKS = ["/archive", "/leaderboard", "/ideas", "/account"];

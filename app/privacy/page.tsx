@@ -124,7 +124,7 @@ export default function PrivacyPage() {
       <p>
         Nu vindem datele. Folosim furnizori care prelucrează date în numele
         nostru: <b>Supabase</b> (bază de date, autentificare și stocarea
-        imaginilor), <b>Netlify</b> (găzduire), <b>GoatCounter</b> (statistici anonime, doar cu acordul tău) și
+        imaginilor), <b>Vercel</b> (găzduire), <b>GoatCounter</b> (statistici anonime, doar cu acordul tău) și
         furnizorul de email prin care Supabase trimite linkurile de autentificare.
         Unii furnizori pot prelucra date în afara Spațiului Economic European;
         în acest caz transferul se face pe baza clauzelor contractuale standard

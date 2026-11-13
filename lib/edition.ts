@@ -1,5 +1,5 @@
 /** Date of edition No. 001 (the first day the game runs). */
-const LAUNCH_DATE = "2026-11-01";
+const LAUNCH_DATE = "2026-11-13";
 
 /** Edition number of a day, zero-padded: "001", "098". Never below 001. */
 export function editionNumber(date: string): string {
