@@ -47,8 +47,7 @@ export default function LeaderboardTable() {
   if (load.rows.length === 0) {
     return (
       <p className="py-10 text-center text-muted">
-        Încă nu e nimeni în clasament. Creează un cont și joacă cel puțin 3
-        întrebări!
+        Coming soon!
       </p>
     );
   }
