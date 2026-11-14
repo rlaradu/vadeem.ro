@@ -25,6 +25,41 @@ export default function ResultCard({
   const dir = guessDirection(guess, question.correct_answer);
   const exact = factor < 1.005;
 
+  // Funcție care procesează textul explicației și formatează liniile cu puncte
+  const renderExplanation = (text: string) => {
+    if (!text) return null;
+    const lines = text.split("\n");
+
+    return lines.map((line, idx) => {
+      const trimmed = line.trim();
+      if (!trimmed) return <div key={idx} className="h-2" />;
+
+      // Detectăm rândurile care conțin puncte de aliniere (3 sau mai multe puncte consecutive)
+      const parts = trimmed.split(/\.{3,}/);
+
+      if (parts.length >= 2) {
+        // Curățăm eventualul simbol de listă (ex: "- ") de la începutul etichetei
+        const label = parts[0].replace(/^-\s*/, "").trim();
+        const value = parts.slice(1).join("").trim();
+
+        return (
+          <div key={idx} className="flex items-baseline justify-between my-1.5 text-xs sm:text-sm md:text-base font-mono">
+            <span className="shrink-0 pr-2 text-white/90">{label}</span>
+            <span className="mx-2 grow border-b border-dotted border-white/30"></span>
+            <span className="shrink-0 pl-2 text-white font-semibold text-right">{value}</span>
+          </div>
+        );
+      } else {
+        // Pentru paragrafele normale (fără puncte, ex: concluzia de la final)
+        return (
+          <p key={idx} className="mt-3 leading-relaxed text-white/90 text-sm md:text-base">
+            {trimmed}
+          </p>
+        );
+      }
+    });
+  };
+
   return (
     <div className="animate-rise">
       <div className="flex items-start justify-between gap-4 sm:gap-8">
@@ -89,13 +124,16 @@ export default function ResultCard({
         </div>
       </dl>
 
-      <p className="mt-6 leading-relaxed text-white/90">{question.explanation_text}</p>
+      <div className="mt-6">
+        {renderExplanation(question.explanation_text)}
+      </div>
+
       {question.source_link && (
         <a
           href={question.source_link}
           target="_blank"
           rel="noopener noreferrer"
-          className="link-anim mt-2 inline-block text-sm font-bold"
+          className="link-anim mt-4 inline-block text-sm font-bold"
         >
           Sursă
         </a>
