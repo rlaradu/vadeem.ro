@@ -9,7 +9,7 @@ export const NAV_LINKS = [
   { href: "/ideas", label: "Idei" },
   { href: "/about", label: "Despre" },
   { href: "/privacy", label: "Confidențialitate" },
-  //{ href: "/account", label: "Cont" },
+  { href: "/account", label: "Cont" },
 ];
 
 const TOP_LINKS = ["/archive", "/leaderboard", "/ideas", "/account"];
@@ -18,15 +18,15 @@ const TOP_LINKS = ["/archive", "/leaderboard", "/ideas", "/account"];
 export function SiteHeader() {
   return (
     <header className="border-b border-line bg-bg/80 backdrop-blur">
-      <div className="mx-auto flex max-w-[860px] flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-3">
+      <div className="mx-auto flex max-w-[860px] flex-wrap items-center justify-between gap-x-4 gap-y-3 px-4 py-3">
         <Link
           href="/"
           className="font-mono text-xl font-extrabold tracking-tight transition-transform hover:scale-105 active:scale-95"
         >
           vadeem.ro<span className="cursor-blink text-code">_</span>
         </Link>
-        <div className="flex items-center gap-4 sm:gap-6">
-          <nav className="flex gap-4 font-mono text-[11px] uppercase tracking-widest text-muted sm:gap-6 sm:text-xs">
+        <div className="contents sm:flex sm:items-center sm:gap-6">
+          <nav className="order-last flex w-full justify-between font-mono text-[11px] uppercase tracking-widest text-muted sm:order-none sm:w-auto sm:justify-start sm:gap-6 sm:text-xs">
             {NAV_LINKS.filter((l) => TOP_LINKS.includes(l.href)).map((l) => (
               <Link key={l.href} href={l.href} className="link-anim">
                 {l.label}

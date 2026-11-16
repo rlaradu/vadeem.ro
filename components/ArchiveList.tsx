@@ -87,7 +87,7 @@ export default function ArchiveList() {
               href={`/archive/${date}`}
               className="group block rounded-3xl border border-line bg-surface p-4 transition duration-300 hover:-translate-y-1 hover:border-accent hover:shadow-[0_20px_40px_-25px_var(--accent)] active:scale-[0.99] sm:p-5"
             >
-              <div className="flex items-center gap-4">
+              <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3 sm:flex-nowrap">
                 <div className="flex shrink-0 -space-x-3">
                   {questions.map((q) => (
                     <QuestionImage
@@ -95,13 +95,13 @@ export default function ArchiveList() {
                       src={q.image_url}
                       seed={q.id + q.question_text}
                       alt=""
-                      className="h-14 w-14 !rounded-2xl border-2 border-surface"
+                      className="h-11 w-11 !rounded-2xl border-2 border-surface sm:h-14 sm:w-14"
                     />
                   ))}
                 </div>
-                <div className="min-w-0 flex-1">
+                <div className="order-last min-w-0 basis-full sm:order-none sm:basis-0 sm:flex-1">
                   <p className="font-display text-lg font-bold">{prettyDate(date)}</p>
-                  <p className="truncate text-sm text-muted">
+                  <p className="line-clamp-2 break-words text-sm text-muted sm:line-clamp-1">
                     {questions.map((q) => q.question_text).join(" · ")}
                   </p>
                 </div>

@@ -54,7 +54,7 @@ export default function Calculator({ onUse }: { onUse: (value: number) => void }
 
   // Funcție pentru aplicarea culorilor din imagine pentru fiecare buton
   const getButtonClass = (btn: string) => {
-    let base =
+    const base =
       "text-xl font-bold rounded-full h-[3.25rem] w-[3.25rem] flex items-center justify-center hover:opacity-80 active:scale-95 transition-all shadow-sm ";
     switch (btn) {
       case "C":

@@ -2,8 +2,7 @@
 
 import type { Session } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
-import { getHistory } from "@/lib/gameStorage";
-import { syncHistory } from "@/lib/cloudSync";
+import { signOutAndClear, syncAccount } from "@/lib/cloudSync";
 import { isSupabaseConfigured, supabase } from "@/lib/supabaseClient";
 
 const input =
@@ -33,11 +32,12 @@ export default function AccountPanel() {
     return () => data.subscription.unsubscribe();
   }, []);
 
-  // Load the username once signed in.
+  // Load the username once signed in, and merge saved progress with this browser.
   const token = session?.access_token;
   useEffect(() => {
     if (!token) return;
     let cancelled = false;
+    void syncAccount();
     fetch("/api/profile", { headers: { Authorization: `Bearer ${token}` } })
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => {
@@ -88,7 +88,7 @@ export default function AccountPanel() {
       if (res.ok) {
         setCurrentName(d.username);
         setMsg({ ok: true, text: "Salvat ✓" });
-        await syncHistory(getHistory()); // make sure plays are linked to the account
+        await syncAccount(); // make sure plays are linked to the account
       } else {
         setMsg({ ok: false, text: d.error ?? "Eroare." });
       }
@@ -150,7 +150,7 @@ export default function AccountPanel() {
         {msgEl}
       </form>
       <button
-        onClick={() => client.auth.signOut()}
+        onClick={() => void signOutAndClear()}
         className="font-mono text-xs uppercase tracking-widest text-muted underline"
       >
         Deconectare

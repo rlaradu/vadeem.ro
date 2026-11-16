@@ -218,6 +218,25 @@ export function getSynced(): Set<string> {
   }
 }
 
+/** Overwrite the stored history (used after merging the account's plays). */
+export function writeHistory(history: GameHistory) {
+  persist(history);
+}
+
+/**
+ * Forget this browser's progress (called on sign-out, so the next account that
+ * signs in here doesn't inherit it). The anonymous client id is kept.
+ */
+export function clearLocalProgress() {
+  try {
+    localStorage.removeItem(HISTORY_KEY);
+    localStorage.removeItem(LEGACY_KEY);
+    localStorage.removeItem(SYNCED_KEY);
+  } catch {
+    /* ignore */
+  }
+}
+
 export function markSynced(keys: string[]) {
   try {
     const all = getSynced();

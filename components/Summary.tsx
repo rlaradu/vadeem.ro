@@ -14,6 +14,7 @@ import {
 import { getClientId, type GameEntry } from "@/lib/gameStorage";
 import type { DailyQuestion } from "@/lib/types";
 import Countdown from "./Countdown";
+import Explanation from "./Explanation";
 import Histogram from "./Histogram";
 import Icon from "./Icon";
 import Pip from "./Pip";
@@ -94,7 +95,7 @@ export default function Summary({
         </div>
 
         <div className="mt-6 flex flex-wrap items-end gap-x-6 gap-y-3">
-          <p className="animate-pop font-display text-7xl font-extrabold leading-none tracking-tight text-accent sm:text-8xl">
+          <p className="animate-pop font-display text-6xl font-extrabold leading-none tracking-tight text-accent sm:text-8xl">
             {formatFactor(score)}
           </p>
           <div className="pb-2">
@@ -117,18 +118,13 @@ export default function Summary({
             <div className="mt-2">
               <Histogram buckets={buckets} mine={score} />
             </div>
-            <div className="mt-6 flex items-center gap-6 font-mono text-xs font-bold uppercase tracking-widest text-muted">
+            <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 font-mono text-xs font-bold uppercase tracking-widest text-muted">
               <span>Serie: {streak}</span>
               <span>Record: {maxStreak}</span>
             </div>
             <div className="mt-5">
               <ShareButton date={date} factors={factors} score={score} />
             </div>
-            {showCountdown && (
-              <div className="mt-5">
-                <Countdown />
-              </div>
-            )}
             {showCountdown && (
               <div className="mt-5">
                 <Countdown />
@@ -150,7 +146,7 @@ export default function Summary({
                       alt=""
                       className="h-12 w-12 shrink-0 !rounded-xl"
                     />
-                    <span className="flex-1 text-sm font-bold leading-snug">
+                    <span className="min-w-0 flex-1 break-words text-sm font-bold leading-snug">
                       {q.question_text}
                     </span>
                     <span className="flex shrink-0 flex-col items-end gap-1">
@@ -164,12 +160,12 @@ export default function Summary({
                       <Pip score={scoreFromFactor(factor)} className="h-2.5 w-6" />
                     </span>
                   </summary>
-                  <div className="mt-3 space-y-2 text-sm leading-relaxed text-fg/80">
-                    <p className="font-mono">
+                  <div className="mt-3 space-y-3 text-sm leading-relaxed">
+                    <p className="break-words font-mono">
                       Răspuns: <b>{formatNumber(q.correct_answer)}</b> · Tu:{" "}
                       <b>{formatNumber(e.guess)}</b>
                     </p>
-                    <p>{q.explanation_text}</p>
+                    <Explanation text={q.explanation_text} />
                     {q.source_link && (
                       <a
                         href={q.source_link}
