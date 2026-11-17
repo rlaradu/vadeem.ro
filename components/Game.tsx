@@ -36,6 +36,11 @@ export function prettyDate(iso: string) {
   });
 }
 
+/** Clasa de mărime a titlului după lungimea întrebării (vezi `.q-title` în globals.css). */
+function titleLength(text: string): "s" | "m" | "l" {
+  return text.length <= 55 ? "s" : text.length <= 110 ? "m" : "l";
+}
+
 /**
  * The game. Without `date` it plays today's questions; with `date` (archive)
  * it plays that past day's questions, which never affect streaks.
@@ -86,7 +91,7 @@ export default function Game({ date: archiveDate }: { date?: string }) {
 
   if (notAvailable) {
     return (
-      <QuestionCard>
+      <QuestionCard fit>
         <p className="py-12 text-center text-xl font-bold">
           Această zi nu este disponibilă încă.
         </p>
@@ -96,7 +101,7 @@ export default function Game({ date: archiveDate }: { date?: string }) {
 
   if (load.status === "loading" || !ready) {
     return (
-      <QuestionCard>
+      <QuestionCard fit>
         <p className="py-16 text-center font-mono text-sm uppercase tracking-widest text-muted">
           Se încarcă…
         </p>
@@ -106,7 +111,7 @@ export default function Game({ date: archiveDate }: { date?: string }) {
 
   if (load.status === "error") {
     return (
-      <QuestionCard>
+      <QuestionCard fit>
         <p className="py-12 text-center text-xl font-bold">{load.message}</p>
       </QuestionCard>
     );
@@ -116,7 +121,7 @@ export default function Game({ date: archiveDate }: { date?: string }) {
 
   if (load.status === "empty") {
     return (
-      <QuestionCard headerRight={headerRight}>
+      <QuestionCard fit headerRight={headerRight}>
         <h1 className="py-10 text-center text-3xl font-black sm:text-4xl">
           {archiveDate
             ? "Nu există întrebări pentru ziua asta."
@@ -143,15 +148,22 @@ export default function Game({ date: archiveDate }: { date?: string }) {
     const e = entryByPos.get(reviewing);
     if (q && e) {
       return (
-        <QuestionCard headerRight={headerRight}>
+        <QuestionCard fit headerRight={headerRight}>
           <Progress total={questions.length} scores={scores} current={q.position} />
-          <ResultCard key={q.id} question={q} guess={e.guess} />
-          <div className="mt-8 flex justify-end">
-            <button onClick={() => setReviewing(null)} className="btn btn-card">
-              {next ? "Următoarea" : "Vezi rezumatul"}
-              <Icon name="arrow" className="icon-nudge h-4 w-4" />
-            </button>
-          </div>
+          <ResultCard
+            key={q.id}
+            question={q}
+            guess={e.guess}
+            action={
+              <button
+                onClick={() => setReviewing(null)}
+                className="btn btn-card w-full !py-3.5 !text-sm sm:w-auto sm:!px-8"
+              >
+                {next ? "Următoarea" : "Vezi rezumatul"}
+                <Icon name="arrow" className="icon-nudge h-4 w-4" />
+              </button>
+            }
+          />
         </QuestionCard>
       );
     }
@@ -176,41 +188,41 @@ export default function Game({ date: archiveDate }: { date?: string }) {
   // Landing screen (only if nothing has been answered yet that day).
   if (!started && dayEntries.length === 0) {
     return (
-      <QuestionCard headerRight={headerRight}>
-        <div className="relative overflow-hidden py-4 sm:py-8">
+      <QuestionCard fit headerRight={headerRight}>
+        <div className="relative overflow-hidden py-2 sm:py-4">
           <span
             aria-hidden="true"
-            className="pointer-events-none absolute -right-4 -top-10 select-none font-display text-[16rem] font-extrabold leading-none text-accent-soft"
+            className="pointer-events-none absolute -right-4 -top-8 select-none font-display text-[12rem] font-extrabold leading-none text-accent-soft sm:-top-10 sm:text-[16rem]"
           >
             ≈
           </span>
           <div className="relative">
-            <h1 className="text-5xl font-black leading-[0.95] tracking-tight sm:text-7xl">
+            <h1 className="text-[clamp(2.6rem,12vw,3.6rem)] font-black leading-[0.95] tracking-tight sm:text-[clamp(3rem,11dvh,5rem)]">
               Trei întrebări.
-              
+
             </h1>
-            <p className="mt-6 max-w-md text-lg leading-relaxed text-muted">
+            <p className="mt-4 max-w-md text-base leading-relaxed text-muted sm:mt-5 sm:text-lg">
               Estimează răspunsul și vezi de câte ori ai greșit. Cu cât scorul
               e mai aproape de 1×, cu atât ești mai aproape de adevăr.
-              <br/> <br/>
+            </p>
+            <p className="mt-3 text-base text-muted sm:text-lg">
               {"//credits: fermi.gg"}
-              
             </p>
             {archiveDate ? (
-              <p className="mt-4 text-sm text-muted">
+              <p className="mt-3 text-sm text-muted">
                 Jocurile din arhivă nu contează pentru serie.{" "}
-                <Link href="/archive" className="link-anim font-bold">
+                <Link href="/estimareaZilei/arhiva" className="link-anim font-bold">
                   Înapoi la arhivă
                 </Link>
               </p>
             ) : (
               streak > 0 && (
-                <p className="mt-4 font-mono text-xs font-bold uppercase tracking-widest text-muted">
+                <p className="mt-3 font-mono text-xs font-bold uppercase tracking-widest text-muted">
                   Serie: {streak}
                 </p>
               )
             )}
-            <button onClick={() => setStarted(true)} className="btn btn-card mt-8">
+            <button onClick={() => setStarted(true)} className="btn btn-card mt-5 sm:mt-6">
               Începe
               <Icon name="arrow" className="icon-nudge h-4 w-4" />
             </button>
@@ -222,22 +234,22 @@ export default function Game({ date: archiveDate }: { date?: string }) {
 
   // Current question + input.
   return (
-    <QuestionCard headerRight={headerRight}>
+    <QuestionCard fit headerRight={headerRight}>
       <Progress total={questions.length} scores={scores} current={next.position} />
       <div key={next.id} className="animate-rise">
-        <div className="relative">
+        <div>
           <Polaroid
             src={next.image_url}
             seed={next.id + next.question_text}
             alt={next.question_text}
-            className="float-right -mt-2 mb-3 ml-4 w-32 sm:-mt-6 sm:ml-8 sm:w-52"
+            className="float-right mb-2 ml-3 w-[var(--polaroid-w)] sm:ml-6"
           />
-          <h1 className="text-4xl font-black leading-[1.02] tracking-tight sm:text-6xl">
+          <h1 className="q-title" data-len={titleLength(next.question_text)}>
             {next.question_text}
           </h1>
           <div className="clear-both" />
         </div>
-        <div className="mt-10 sm:mt-14">
+        <div className="mt-3 sm:mt-4">
           <InputForm
             unit={next.unit}
             onSubmit={(guess) => {

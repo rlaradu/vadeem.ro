@@ -7,7 +7,8 @@ export type IconName =
   | "down"
   | "enter"
   | "upload"
-  | "calculator";
+  | "calculator"
+  | "close";
 
 const PATHS: Record<IconName, string> = {
   arrow: "M5 12h14M13 6l6 6-6 6",
@@ -18,6 +19,7 @@ const PATHS: Record<IconName, string> = {
   down: "M12 5v14M19 12l-7 7-7-7",
   enter: "M20 4v7a4 4 0 01-4 4H4M9 10l-5 5 5 5",
   upload: "M12 16V4M7 9l5-5 5 5M4 20h16",
+  close: "M6 6l12 12M18 6L6 18",
   calculator:
     "M7 3h10a2 2 0 012 2v14a2 2 0 01-2 2H7a2 2 0 01-2-2V5a2 2 0 012-2zM8 7h8M8.5 12h.01M12 12h.01M15.5 12h.01M8.5 16h.01M12 16h.01M15.5 16h.01",
 };

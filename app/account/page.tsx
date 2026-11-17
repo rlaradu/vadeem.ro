@@ -3,7 +3,8 @@ import AccountPanel from "@/components/AccountPanel";
 import PageTitle from "@/components/PageTitle";
 import QuestionCard from "@/components/QuestionCard";
 
-export const metadata: Metadata = { title: "Cont – vadeem.ro" };
+// Pagina de cont nu are ce căuta în Google.
+export const metadata: Metadata = { title: "Cont", robots: { index: false, follow: false } };
 
 export default function AccountPage() {
   return (

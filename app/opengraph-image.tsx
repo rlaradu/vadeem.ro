@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 
-export const alt = "vadeem.ro – trei întrebări, zero Google";
+export const alt = "vadeem.ro – jocuri zilnice, zero Google";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -44,11 +44,11 @@ export default function OpengraphImage() {
               letterSpacing: -4,
             }}
           >
-            <div style={{ display: "flex" }}>Trei întrebări.</div>
+            <div style={{ display: "flex" }}>Jocuri zilnice.</div>
             <div style={{ display: "flex" }}>Zero Google.</div>
           </div>
           <div style={{ display: "flex", fontSize: 30, opacity: 0.85 }}>
-            {"// jocul zilnic de estimare"}
+            {"// estimarea zilei · județul zilei"}
           </div>
         </div>
       </div>

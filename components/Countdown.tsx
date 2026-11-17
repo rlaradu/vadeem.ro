@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 
 const pad = (n: number) => String(n).padStart(2, "0");
 
-/** Time left until the next questions (local midnight), e.g. "05:12:30". */
-export default function Countdown() {
+/** Time left until the next daily content (local midnight), e.g. "05:12:30". */
+export default function Countdown({ label = "// întrebări noi în " }: { label?: string }) {
   const [left, setLeft] = useState<string | null>(null);
 
   useEffect(() => {
@@ -25,7 +25,7 @@ export default function Countdown() {
 
   return (
     <p className="font-mono text-xs font-bold uppercase tracking-widest text-white/80">
-      {"// întrebări noi în "}
+      {label}
       <span className="tabular-nums">{left ?? "--:--:--"}</span>
     </p>
   );

@@ -3,7 +3,11 @@ import IdeaForm from "@/components/IdeaForm";
 import PageTitle from "@/components/PageTitle";
 import QuestionCard from "@/components/QuestionCard";
 
-export const metadata: Metadata = { title: "Trimite o idee – vadeem.ro" };
+export const metadata: Metadata = {
+  title: "Trimite o idee de întrebare sau de joc",
+  description: "Ai o idee de întrebare Fermi sau de joc zilnic nou? Trimite-o către vadeem.ro.",
+  alternates: { canonical: "/ideas" },
+};
 
 export default function IdeasPage() {
   return (

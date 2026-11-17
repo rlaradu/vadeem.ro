@@ -84,7 +84,7 @@ export default function ArchiveList() {
         return (
           <li key={date} className="animate-rise" style={{ animationDelay: `${i * 50}ms` }}>
             <Link
-              href={`/archive/${date}`}
+              href={`/estimareaZilei/arhiva/${date}`}
               className="group block rounded-3xl border border-line bg-surface p-4 transition duration-300 hover:-translate-y-1 hover:border-accent hover:shadow-[0_20px_40px_-25px_var(--accent)] active:scale-[0.99] sm:p-5"
             >
               <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3 sm:flex-nowrap">

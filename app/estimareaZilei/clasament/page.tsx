@@ -3,7 +3,11 @@ import LeaderboardTable from "@/components/LeaderboardTable";
 import PageTitle from "@/components/PageTitle";
 import QuestionCard from "@/components/QuestionCard";
 
-export const metadata: Metadata = { title: "Clasament – vadeem.ro" };
+export const metadata: Metadata = {
+  title: "Clasament Estimarea zilei",
+  description: "Clasamentul jucătorilor de la Estimarea zilei, după scorul mediu.",
+  alternates: { canonical: "/estimareaZilei/clasament" },
+};
 
 export default function LeaderboardPage() {
   return (

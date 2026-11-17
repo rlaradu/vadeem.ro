@@ -3,7 +3,8 @@ import Prose from "@/components/Prose";
 import { LEGAL } from "@/lib/legal";
 
 export const metadata: Metadata = {
-  title: "Politica de confidențialitate – vadeem.ro",
+  title: "Politica de confidențialitate",
+  alternates: { canonical: "/privacy" },
 };
 
 export default function PrivacyPage() {
@@ -31,10 +32,11 @@ export default function PrivacyPage() {
       <h2>Ce date prelucrăm</h2>
       <ul>
         <li>
-          <b>Progresul în joc</b> (data, estimările tale, scorurile, seria):
-          rămân în browserul tău. Se trimit la server doar estimarea, data
-          întrebării și un identificator anonim generat aleatoriu în browser,
-          pentru statistici („cum au jucat toți”) și clasament.
+          <b>Progresul în joc</b> (data, estimările tale sau județele ghicite, scorurile, seria):
+          rămân în browserul tău. Se trimit la server doar estimările de la „Estimarea zilei”,
+          data jocului și un identificator anonim generat aleatoriu în browser,
+          pentru statistici („cum au jucat toți”) și clasament. „Județul zilei” nu trimite nimic
+          la server: încercările și seria rămân doar în browser.
         </li>
         <li>
           <b>Cont (opțional)</b>: adresa de email, numele de utilizator ales și

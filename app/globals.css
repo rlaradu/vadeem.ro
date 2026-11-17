@@ -85,9 +85,22 @@ h1,
   --good: #ffffff;
   --mid: #ffc9b8;
   --bad: #3d0c06;
+  --tile-mid-fg: #3d0c06; /* text on a "mid" (close) tile */
   --code: #fff;
   --surface: rgb(255 255 255 / 0.13);
   --font-display: var(--font-body);
+}
+
+/*
+ * Varianta verde a cardului, pentru „Județul zilei”: aceeași structură, același font,
+ * aceleași puncte și butoane, dar altă culoare. Verdele e cel deja folosit de site la
+ * „bine” (--good); „aproape” devine chihlimbar, „departe” verde foarte închis.
+ */
+.game-card.theme-judet {
+  --card: #1f7a4d;
+  --mid: #f2c14e;
+  --bad: #0f3b29;
+  --tile-mid-fg: #2b2100;
 }
 
 /* big white pill used on the game card */
@@ -179,13 +192,19 @@ h1,
 .btn-icon {
   display: inline-grid;
   place-items: center;
-  height: 2.4rem;
-  width: 2.4rem;
+  height: 2.1rem;
+  width: 2.1rem;
   cursor: pointer;
   border-radius: 9999px;
   border: 1.5px solid var(--line);
   color: var(--fg);
   transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.2s, color 0.2s;
+}
+@media (min-width: 640px) {
+  .btn-icon {
+    height: 2.4rem;
+    width: 2.4rem;
+  }
 }
 .btn-icon:hover {
   transform: rotate(18deg) scale(1.08);
@@ -260,8 +279,12 @@ h1,
     transform: scaleX(1);
   }
 }
+/* „backwards”, nu „both”: după animație nu mai rămâne nicio transformare pe element.
+ * Cu „both” rămânea transform: matrix(1,0,0,1,0,0), iar asta face ca orice element
+ * `position: fixed` din interior (fereastra calculatorului) să se raporteze la card,
+ * nu la ecran. */
 .animate-rise {
-  animation: rise 0.55s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation: rise 0.55s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
 }
 .animate-pop {
   animation: pop 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both;
@@ -291,4 +314,181 @@ h1,
 }
 .cursor-blink {
   animation: blink 1.1s steps(1) infinite;
+}
+
+/* ---------- Jocuri care încap pe ecran, fără scroll ----------
+ * Ecranele de joc sunt gândite să încapă într-un singur ecran. Mărimile care
+ * contează (poza, scorul, rândurile listei) se potrivesc după înălțimea ferestrei
+ * (dvh), nu doar după lățime: așa un telefon mic sau un laptop scund nu ajunge
+ * să deruleze. Valorile sunt aici, într-un singur loc, ca să se poată ajusta ușor.
+ */
+:root {
+  --polaroid-w: min(26vw, 6.5rem);
+  --score-size: min(14vw, 7.5dvh);
+  --row-h: clamp(1.8rem, 4.4dvh, 3rem);
+  /* lățimea utilă a cardului (fără margini și umplutură) și a coloanei din stânga, lângă poză */
+  --card-inner: calc(100vw - 3.5rem);
+  --score-col: calc(var(--card-inner) - var(--polaroid-w) - 0.75rem);
+}
+@media (min-width: 640px) {
+  :root {
+    --polaroid-w: clamp(6.75rem, 19dvh, 12.5rem);
+    --score-size: clamp(3rem, 10dvh, 6rem);
+    --card-inner: calc(min(100vw, 860px) - 5rem);
+    --score-col: calc(var(--card-inner) - var(--polaroid-w) - 1.5rem);
+  }
+}
+
+/* Titlul întrebării: mărimea scade cu lungimea textului (data-len) și cu înălțimea ecranului. */
+.q-title {
+  font-size: var(--q-size);
+  font-weight: 900;
+  line-height: 1.04;
+  letter-spacing: -0.03em;
+}
+.q-title[data-len="s"] {
+  --q-size: min(8.4vw, 5.6dvh);
+}
+.q-title[data-len="m"] {
+  --q-size: min(6.6vw, 4.5dvh);
+}
+.q-title[data-len="l"] {
+  --q-size: min(5.6vw, 3.8dvh);
+}
+@media (min-width: 640px) {
+  .q-title[data-len="s"] {
+    --q-size: clamp(1.75rem, 5.4dvh, 3rem);
+  }
+  .q-title[data-len="m"] {
+    --q-size: clamp(1.5rem, 4.4dvh, 2.5rem);
+  }
+  .q-title[data-len="l"] {
+    --q-size: clamp(1.25rem, 3.6dvh, 2rem);
+  }
+}
+
+/* Rezultatul unei întrebări: pe telefon totul pe verticală, pe ecrane late butonul „Următoarea” urcă lângă scoruri. */
+.result-grid {
+  display: grid;
+  gap: 0.4rem;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: "top" "tiles" "explain" "action";
+}
+@media (min-width: 640px) {
+  .result-grid {
+    gap: 0.75rem;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: "top top" "tiles action" "explain explain";
+  }
+}
+.result-top {
+  grid-area: top;
+  min-width: 0;
+}
+.result-tiles {
+  grid-area: tiles;
+  min-width: 0;
+}
+.result-explain {
+  grid-area: explain;
+  min-width: 0;
+}
+.result-action {
+  grid-area: action;
+  align-self: end;
+}
+
+/* „Județul zilei”: pe telefon titlul și harta sunt pe un rând, jocul dedesubt; pe ecrane late harta stă în stânga. */
+.judet-grid {
+  display: grid;
+  gap: 0.6rem 0.75rem;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas: "title map" "hint hint" "main main" "note note";
+}
+@media (min-width: 768px) {
+  .judet-grid {
+    gap: 0.6rem 1.75rem;
+    grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+    /* nota cu sursele stă sub hartă, în coloana din stânga (care are loc), nu în înălțimea totală */
+    grid-template-areas: "map title" "map main" "hint main" "note main";
+    grid-template-rows: auto minmax(0, 1fr) auto auto;
+  }
+}
+.judet-note {
+  grid-area: note;
+}
+.judet-hint {
+  grid-area: hint;
+  min-width: 0;
+}
+.judet-title {
+  grid-area: title;
+  min-width: 0;
+  align-self: center;
+}
+.judet-map {
+  grid-area: map;
+  align-self: center;
+  justify-self: end;
+}
+@media (min-width: 768px) {
+  .judet-map {
+    justify-self: stretch;
+  }
+}
+.judet-main {
+  grid-area: main;
+  min-width: 0;
+}
+
+/* ---------- Harta jocului „Județul zilei” ----------
+ * Harta stă într-un „polaroid” alb, ca poza de la „Estimarea zilei”. Culorile se iau
+ * din cardul jocului (--mid = „aproape”, --bad = „departe”), deci se potrivesc cu
+ * indiciile din listă. Județul căutat, dezvăluit la final, e roșu (culoarea site-ului).
+ * Harta nu se poate atinge: doar arată ce ai încercat.
+ */
+.map-frame {
+  --map-unknown: #dfd9c9;
+  --map-line: #fff;
+  --map-close: #f2c14e; /* aceleași culori ca la carduri, dar harta e în afara cardului verde */
+  --map-far: #595959; /* departe: gri */
+  --map-target: #d93a28;
+  --map-won: #13ab50; /* județul ghicit: verde deschis */
+}
+.map-county {
+  fill: var(--map-unknown);
+  stroke: var(--map-line);
+  stroke-width: 1.2;
+  stroke-linejoin: round;
+  transition: fill 0.25s ease;
+}
+.map-county[data-state="close"] {
+  fill: var(--map-close);
+}
+.map-county[data-state="far"] {
+  fill: var(--map-far);
+}
+.map-county[data-state="won"] {
+  fill: var(--map-won);
+}
+.map-county[data-state="target"] {
+  fill: var(--map-target);
+}
+/* Bucureștiul e mic: când e încercat, primește un punct, ca să se vadă culoarea */
+.map-pin {
+  stroke: #fff;
+  stroke-width: 3;
+}
+.map-pin[data-state="close"] {
+  fill: var(--map-close);
+}
+.map-pin[data-state="far"] {
+  fill: var(--map-far);
+}
+.map-pin[data-state="won"] {
+  fill: var(--map-won);
+}
+.map-pin[data-state="target"] {
+  fill: var(--map-target);
+  stroke: #fff;
 }

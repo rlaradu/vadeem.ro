@@ -13,7 +13,8 @@ export default function Histogram({
 
   return (
     <div>
-      <div className="relative flex h-32 items-end gap-[3px] pt-9">
+      {/* Înălțimea urmează înălțimea ferestrei, ca graficul să nu împingă restul în afara ecranului. */}
+      <div className="relative flex h-[clamp(4.25rem,11dvh,8.5rem)] items-end gap-[3px] pt-7">
         {buckets.map((count, i) => (
           <div key={i} className="relative flex h-full flex-1 items-end">
             {i === mineBucket && (
@@ -33,7 +34,7 @@ export default function Histogram({
           </div>
         ))}
       </div>
-      <div className="relative mt-2 h-4 font-mono text-[11px] font-bold text-muted">
+      <div className="relative mt-1.5 h-4 font-mono text-[11px] font-bold text-muted">
         {[0, 1, 2, 3].map((decade) => (
           <span
             key={decade}

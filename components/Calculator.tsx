@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { evalExpression } from "@/lib/calc";
 import { formatNumber } from "@/lib/scoring";
 import Icon from "./Icon";
@@ -21,6 +21,16 @@ export default function Calculator({ onUse }: { onUse: (value: number) => void }
 
   // Evaluăm expresia folosind utilitarul tău existent
   const result = evalExpression(getParsableExpr(display));
+
+  // Escape închide calculatorul.
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open]);
 
   const handlePress = (val: string) => {
     if (val === "C") {
@@ -93,41 +103,57 @@ export default function Calculator({ onUse }: { onUse: (value: number) => void }
         aria-label="Calculator"
         aria-expanded={open}
         title="Calculator"
-        className="grid h-14 w-14 cursor-pointer place-items-center rounded-full border-2 border-white/70 text-white transition duration-200 hover:scale-110 hover:bg-white hover:text-[var(--card)] active:scale-90"
+        className="grid h-12 w-12 cursor-pointer place-items-center rounded-full border-2 border-white/70 text-white transition duration-200 hover:scale-110 hover:bg-white hover:text-[var(--card)] active:scale-90 sm:h-14 sm:w-14"
       >
         <Icon name="calculator" className="h-6 w-6" />
       </button>
 
       {open && (
-        <div className="animate-pop absolute bottom-[4.25rem] left-0 z-10 w-[300px] rounded-3xl bg-[#1E1E1E] p-4 text-white shadow-2xl">
-          {/* Ecran Calculator */}
-          <div className="mb-4 flex min-h-[5rem] items-center justify-end overflow-x-auto truncate rounded-2xl bg-[#5568FE] p-4 text-right text-4xl font-medium tracking-wider text-white shadow-inner">
-            {display}
-          </div>
-
-          {/* Grilă de butoane */}
-          <div className="mb-4 grid grid-cols-4 place-items-center gap-2">
-            {buttons.map((btn) => (
-              <button
-                key={btn}
-                type="button"
-                onClick={() => handlePress(btn)}
-                className={getButtonClass(btn)}
-              >
-                {btn}
-              </button>
-            ))}
-          </div>
-
-          {/* Buton Submit */}
+        // Fereastră centrată, nu deasupra butonului: pe ecrane scunde un panou de ~480px
+        // deasupra butonului ar ieși din ecran. Un clic pe fundal îl închide.
+        <div
+          className="fixed inset-0 z-40 grid place-items-center p-3"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Calculator"
+        >
           <button
             type="button"
-            onClick={use}
-            disabled={result === null || result <= 0}
-            className="btn btn-card w-full !bg-[var(--card)] !py-3 !text-white rounded-xl uppercase tracking-widest font-bold disabled:opacity-50"
-          >
-            Folosește {result !== null && result > 0 ? `(${formatNumber(result)})` : ""}
-          </button>
+            tabIndex={-1}
+            aria-label="Închide calculatorul"
+            onClick={() => setOpen(false)}
+            className="absolute inset-0 cursor-default bg-black/45"
+          />
+          <div className="animate-pop relative max-h-[calc(100dvh-1.5rem)] w-[300px] max-w-full overflow-y-auto rounded-3xl bg-[#1E1E1E] p-4 text-white shadow-2xl">
+            {/* Ecran Calculator */}
+            <div className="mb-4 flex min-h-[5rem] items-center justify-end overflow-x-auto truncate rounded-2xl bg-[#5568FE] p-4 text-right text-4xl font-medium tracking-wider text-white shadow-inner">
+              {display}
+            </div>
+
+            {/* Grilă de butoane */}
+            <div className="mb-4 grid grid-cols-4 place-items-center gap-2">
+              {buttons.map((btn) => (
+                <button
+                  key={btn}
+                  type="button"
+                  onClick={() => handlePress(btn)}
+                  className={getButtonClass(btn)}
+                >
+                  {btn}
+                </button>
+              ))}
+            </div>
+
+            {/* Buton Submit */}
+            <button
+              type="button"
+              onClick={use}
+              disabled={result === null || result <= 0}
+              className="btn btn-card w-full !bg-[var(--card)] !py-3 !text-white rounded-xl uppercase tracking-widest font-bold disabled:opacity-50"
+            >
+              Folosește {result !== null && result > 0 ? `(${formatNumber(result)})` : ""}
+            </button>
+          </div>
         </div>
       )}
     </div>

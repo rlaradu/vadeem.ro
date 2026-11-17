@@ -34,7 +34,7 @@ export default function ShareButton({
   }
 
   return (
-    <button onClick={handleShare} className="btn btn-primary">
+    <button onClick={handleShare} className="btn btn-primary !py-2.5 sm:!py-3">
       {status === "copied" ? (
         <>
           Copiat <Icon name="check" />

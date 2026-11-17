@@ -11,6 +11,7 @@ import {
   overallScore,
   scoreFromFactor,
 } from "@/lib/scoring";
+import { emWidth } from "@/lib/emWidth";
 import { getClientId, type GameEntry } from "@/lib/gameStorage";
 import type { DailyQuestion } from "@/lib/types";
 import Countdown from "./Countdown";
@@ -18,6 +19,7 @@ import Explanation from "./Explanation";
 import Histogram from "./Histogram";
 import Icon from "./Icon";
 import Pip from "./Pip";
+import QuestionCard from "./QuestionCard";
 import QuestionImage from "./QuestionImage";
 import ShareButton from "./ShareButton";
 
@@ -87,106 +89,110 @@ export default function Summary({
   const topPercent = Math.ceil((((stats?.better ?? 0) + 1) / total) * 100);
 
   return (
-    <div className="animate-rise mx-auto w-full max-w-[860px] px-4 py-8 sm:py-14">
-      <section className="game-card rounded-[2.5rem] p-6 shadow-[0_30px_60px_-25px_rgba(0,0,0,0.35)] sm:p-12">
-        <div className="flex items-center justify-between text-sm font-extrabold text-white/90 sm:text-base">
-          <span>vadeem.ro</span>
-          <span title={dateLabel}>No. {edition}</span>
-        </div>
-
-        <div className="mt-6 flex flex-wrap items-end gap-x-6 gap-y-3">
-          <p className="animate-pop font-display text-6xl font-extrabold leading-none tracking-tight text-accent sm:text-8xl">
-            {formatFactor(score)}
+    <QuestionCard fit headerRight={<span title={dateLabel}>No. {edition}</span>}>
+      <div className="flex items-end gap-x-4 sm:gap-x-5">
+        <p
+          style={{
+            // cât de mare permite ecranul, dar lăsăm loc (~9rem) pentru textul din dreapta
+            fontSize: `min(var(--score-size), calc((var(--card-inner) - 9rem) / ${emWidth(formatFactor(score)).toFixed(2)}))`,
+          }}
+          className="animate-pop whitespace-nowrap font-display font-extrabold leading-none tracking-tight text-accent"
+        >
+          {formatFactor(score)}
+        </p>
+        <div className="min-w-0 pb-0.5 sm:pb-2">
+          <p className="font-mono text-[11px] font-bold uppercase tracking-widest text-muted sm:text-xs">
+            {"// eroare medie"}
           </p>
-          <div className="pb-2">
-            <p className="font-mono text-xs font-bold uppercase tracking-widest text-muted">
-              {"// eroare medie"}
+          <p className="mt-0.5 font-display text-sm font-bold leading-tight sm:text-lg">
+            {total > 1
+              ? `Top ${topPercent}% dintre jucători`
+              : "Ești primul jucător azi"}
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-3 grid gap-3 sm:mt-4 md:grid-cols-[1.1fr_1fr] md:gap-8">
+        <div>
+          <div className="flex items-baseline justify-between gap-3 font-mono text-[11px] font-bold uppercase tracking-widest text-muted">
+            <p>{"// cum au jucat toți"}</p>
+            <p className="whitespace-nowrap">
+              Serie: {streak} · Record: {maxStreak}
             </p>
-            <p className="mt-1 font-display text-lg font-bold">
-              {total > 1
-                ? `Top ${topPercent}% dintre jucători`
-                : "Ești primul jucător azi"}
-            </p>
+          </div>
+          <div className="mt-1">
+            <Histogram buckets={buckets} mine={score} />
+          </div>
+          <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 sm:mt-4">
+            <ShareButton date={date} factors={factors} score={score} />
+            {showCountdown && <Countdown />}
           </div>
         </div>
 
-        <div className="mt-8 grid gap-8 md:grid-cols-[1.2fr_1fr]">
-          <div>
-            <p className="font-mono text-[11px] font-bold uppercase tracking-[0.2em] text-muted">
-              {"// cum au jucat toți"}
-            </p>
-            <div className="mt-2">
-              <Histogram buckets={buckets} mine={score} />
-            </div>
-            <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 font-mono text-xs font-bold uppercase tracking-widest text-muted">
-              <span>Serie: {streak}</span>
-              <span>Record: {maxStreak}</span>
-            </div>
-            <div className="mt-5">
-              <ShareButton date={date} factors={factors} score={score} />
-            </div>
-            {showCountdown && (
-              <div className="mt-5">
-                <Countdown />
-              </div>
-            )}
-          </div>
-
-          <div>
-            <p className="font-mono text-[11px] font-bold uppercase tracking-[0.2em] text-muted">
-              {"// întrebările"}
-            </p>
-            <div className="mt-3 divide-y divide-line border-y border-line">
-              {rows.map(({ q, e, factor, dir }) => (
-                <details key={q.id} className="group py-3">
-                  <summary className="flex cursor-pointer list-none items-center gap-3">
-                    <QuestionImage
-                      src={q.image_url}
-                      seed={q.id + q.question_text}
-                      alt=""
-                      className="h-12 w-12 shrink-0 !rounded-xl"
-                    />
-                    <span className="min-w-0 flex-1 break-words text-sm font-bold leading-snug">
-                      {q.question_text}
-                    </span>
-                    <span className="flex shrink-0 flex-col items-end gap-1">
-                      <span className="flex items-center gap-1 font-mono text-sm font-bold">
-                        <Icon
-                          name={dir === "over" ? "up" : "down"}
-                          className="h-3.5 w-3.5 text-muted"
-                        />
-                        {formatFactor(factor)}
-                      </span>
-                      <Pip score={scoreFromFactor(factor)} className="h-2.5 w-6" />
-                    </span>
-                  </summary>
-                  <div className="mt-3 space-y-3 text-sm leading-relaxed">
-                    <p className="break-words font-mono">
-                      Răspuns: <b>{formatNumber(q.correct_answer)}</b> · Tu:{" "}
-                      <b>{formatNumber(e.guess)}</b>
-                    </p>
-                    <Explanation text={q.explanation_text} />
-                    {q.source_link && (
-                      <a
-                        href={q.source_link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="link-anim font-bold"
-                      >
-                        Sursă
-                      </a>
-                    )}
-                  </div>
-                </details>
-              ))}
-            </div>
-            <p className="mt-3 text-xs text-muted">
-              Săgeata sus = ai estimat prea mult, jos = prea puțin. Apasă o
-              întrebare pentru răspuns.
+        <div>
+          <div className="flex items-baseline justify-between gap-3 font-mono text-[11px] font-bold uppercase tracking-[0.2em] text-muted">
+            <p>{"// întrebările"}</p>
+            <p className="flex items-center gap-2.5 font-normal normal-case tracking-normal">
+              <span className="flex items-center gap-1">
+                <Icon name="up" className="h-3 w-3" /> prea mult
+              </span>
+              <span className="flex items-center gap-1">
+                <Icon name="down" className="h-3 w-3" /> prea puțin
+              </span>
             </p>
           </div>
+          <div className="mt-1.5 divide-y divide-line border-y border-line">
+            {rows.map(({ q, e, factor, dir }) => (
+              <details key={q.id} className="group py-1 sm:py-1.5">
+                <summary className="flex cursor-pointer list-none items-center gap-3">
+                  <QuestionImage
+                    src={q.image_url}
+                    seed={q.id + q.question_text}
+                    alt=""
+                    className="h-8 w-8 shrink-0 !rounded-lg sm:h-11 sm:w-11"
+                  />
+                  <span className="line-clamp-2 min-w-0 flex-1 break-words text-xs font-bold leading-snug sm:text-sm">
+                    {q.question_text}
+                  </span>
+                  <span className="flex shrink-0 flex-col items-end gap-1">
+                    <span className="flex items-center gap-1 font-mono text-xs font-bold sm:text-sm">
+                      <Icon
+                        name={dir === "over" ? "up" : "down"}
+                        className="h-3.5 w-3.5 text-muted"
+                      />
+                      {formatFactor(factor)}
+                    </span>
+                    <Pip score={scoreFromFactor(factor)} className="h-2 w-6" />
+                  </span>
+                </summary>
+                <div className="mt-2 space-y-2 text-sm leading-relaxed">
+                  <p className="break-words font-mono">
+                    {q.question_text}
+                  </p>
+                  <p className="break-words font-mono">
+                    Răspuns: <b>{formatNumber(q.correct_answer)}</b> · Tu:{" "}
+                    <b>{formatNumber(e.guess)}</b>
+                  </p>
+                  <Explanation text={q.explanation_text} />
+                  {q.source_link && (
+                    <a
+                      href={q.source_link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="link-anim font-bold"
+                    >
+                      Sursă
+                    </a>
+                  )}
+                </div>
+              </details>
+            ))}
+          </div>
+          <p className="mt-1.5 hidden text-[11px] text-muted sm:block">
+            Apasă o întrebare pentru răspuns și explicație.
+          </p>
         </div>
-      </section>
-    </div>
+      </div>
+    </QuestionCard>
   );
 }

@@ -125,3 +125,4 @@ create table if not exists public.question_ideas (
 );
 create index if not exists question_ideas_client_idx on public.question_ideas (client_id, created_at);
 alter table public.question_ideas enable row level security;
+

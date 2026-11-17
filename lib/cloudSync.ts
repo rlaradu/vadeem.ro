@@ -100,7 +100,7 @@ export async function syncAccount(): Promise<GameHistory | null> {
   }
 }
 
-/** Push anything unsent, then wipe this browser's progress (it lives in the account). */
+/** Push anything unsent (all games), then wipe this browser's progress (it lives in the account). */
 export async function signOutAndClear(): Promise<void> {
   await syncHistory(getHistory());
   await supabase?.auth.signOut();

@@ -56,7 +56,7 @@ export default function ConsentBanner() {
 /** Footer link that reopens the banner. */
 export function CookieSettingsButton() {
   return (
-    <button onClick={resetConsent} className="link-anim uppercase tracking-widest">
+    <button onClick={resetConsent} className="link-anim uppercase">
       Setări cookie
     </button>
   );

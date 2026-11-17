@@ -1,5 +1,7 @@
-/** Top row of the card: three small dots + site name left, edition number / path right. */
-export default function Header({ right }: { right?: string }) {
+import type { ReactNode } from "react";
+
+/** Top row of the card: three small dots + site name left, edition number / path / actions right. */
+export default function Header({ right }: { right?: ReactNode }) {
   return (
     <div className="flex items-center justify-between font-mono text-xs font-bold text-white/90 sm:text-sm">
       <span className="flex items-center gap-3">
@@ -10,7 +12,7 @@ export default function Header({ right }: { right?: string }) {
         </span>
         vadeem.ro
       </span>
-      {right && <span>{right}</span>}
+      {right && <span className="flex items-center gap-2.5">{right}</span>}
     </div>
   );
 }

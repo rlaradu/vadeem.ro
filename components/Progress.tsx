@@ -12,7 +12,7 @@ export default function Progress({
   current?: number;
 }) {
   return (
-    <div className="mb-6 flex items-end gap-3">
+    <div className="mb-2.5 flex items-end gap-2 sm:mb-4 sm:gap-3">
       {Array.from({ length: total }, (_, i) => i + 1).map((pos) => (
         <div key={pos} className="flex-1">
           <div
@@ -21,12 +21,12 @@ export default function Progress({
             }`}
           />
           <div
-            className={`mt-2 flex items-center gap-2 font-mono text-xs font-bold tracking-widest ${
+            className={`mt-1 flex items-center gap-1.5 font-mono text-[11px] font-bold tracking-widest sm:mt-2 sm:gap-2 sm:text-xs ${
               pos === current ? "text-accent" : "text-muted"
             }`}
           >
             Q{pos}
-            <Pip score={scores[pos]} className="h-3 w-3" />
+            <Pip score={scores[pos]} className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
           </div>
         </div>
       ))}
